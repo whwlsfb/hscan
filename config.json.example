@@ -1,0 +1,33 @@
+{
+    "connectionSetting": {
+        "retrycount": 3
+    },
+    "items": [
+        {
+            "name": "Test Web Site1",
+            "url": "http://www.xxx.com/",
+            "checkmethod": "HEAD",
+            "allmatch": "true",
+            "matchs": [
+                {
+                    "matchmethod": "StatusCode",
+                    "parms": {
+                        "status_code": 200
+                    }
+                }
+            ],
+            "rate": "3min",
+            "alertgroup": "TestGroup1"
+        }
+    ],
+    "alertgroup": {
+        "TestGroup1": [
+            {
+                "alertmethod": "PushBear",
+                "parms": {
+                    "sendkey": "keykeykeykeykeykey"
+                }
+            }
+        ]
+    }
+}
