@@ -136,9 +136,11 @@ def check(item):
             break
         except Exception as ex:
             error = ex
+            time.sleep(5)
     print('[I] %s check result, Alive: %s' % (item['name'], result))
     if (not result):
         if (not item['dead']):
+            item['deadtime'] = datetime.datetime.now()
             alert(item, resp, match, error)
     else:
         if (item['dead']):
@@ -150,15 +152,15 @@ def recovery(item):
     name = item['name']
     print('[+] %s is recovery! Collecting information...' % name)
     alert_title = '网站 %s 已恢复正常！' % name
-    alert_content = '''地址：%s\n\n时间：%s''' % (item['url'], datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    alert_content = '地址：%s\n\n恢复时间：%s（异常持续时间：%s）' % (item['url'], datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), datetime.datetime.now() - item['deadtime'])
     sendto_alertgroup(alert_title,alert_content,item['alertgroup'])
 
 def alert(item, resp, match, ex):
     global config
     name = item['name']
     print('[-] %s is dead! Collecting information...' % name)
-    alert_title = '网站 %s 出现故障！' % name
-    alert_content = '''地址：%s\n\n时间：%s''' % (item['url'], datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    alert_title = '网站 %s 出现异常！' % name
+    alert_content = '''监控对象：%s\n\n异常发生时间：%s''' % (item['url'], datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     if not resp == None:
         alert_content += '\n\n状态码：%d' % resp.status_code
     if not match == None:
@@ -198,8 +200,10 @@ Rate: %s
 AlertGroup: %s
 ---------------''' % (item['name'], item['url'], item['rate'], item['alertgroup']))
         item['dead'] = False
+        item['deadtime'] = datetime.datetime.now()
         min = humantime2minutes(item['rate'])
-        #schedule.every(5).seconds.do(check, item)
+        #job = schedule.every(5).seconds.do(check, item)
+        #item['job'] = job
         schedule.every(min).minutes.do(check, item)
     print('[+] task loading finish.')
 
